@@ -381,6 +381,7 @@ export default function Home() {
               <th className="p-2 border border-gray-300">Şehir</th>
               <th className="p-2 border border-gray-300 text-center">Tür</th>
               <th className="p-2 border border-gray-300 text-right">2025 Sıralaması</th>
+              <th className="p-2 border border-gray-300 text-right">2025 Puanı</th>
               <th className="p-2 border border-gray-300 text-right">Kontenjan</th>
             </tr>
           </thead>
@@ -394,6 +395,9 @@ export default function Home() {
                 <td className="p-2 border border-gray-300 text-center font-bold">{prog.scoreType}</td>
                 <td className="p-2 border border-gray-300 text-right font-mono font-bold">
                   {prog.rank2025 ? prog.rank2025.toLocaleString("tr-TR") : "Dolmadı / Yeni"}
+                </td>
+                <td className="p-2 border border-gray-300 text-right font-mono text-emerald-700 font-semibold">
+                  {prog.score2025 ? prog.score2025.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 5 }) : "-"}
                 </td>
                 <td className="p-2 border border-gray-300 text-right font-mono">{prog.quota || "-"}</td>
               </tr>

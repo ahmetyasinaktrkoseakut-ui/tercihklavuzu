@@ -95,10 +95,11 @@ export const ProgramTable: React.FC<ProgramTableProps> = ({
               <th className="py-3.5 px-4 min-w-[200px]">İhtimal Durumu</th>
               <th className="py-3.5 px-4 min-w-[220px]">Üniversite & Şehir</th>
               <th className="py-3.5 px-4 min-w-[220px]">Fakülte & Bölüm</th>
-              <th className="py-3.5 px-4 w-24 text-center">Tür</th>
+              <th className="py-3.5 px-4 w-20 text-center">Tür</th>
               <th className="py-3.5 px-4 w-28 text-right">2025 Sırası</th>
-              <th className="py-3.5 px-4 w-24 text-right">Kontenjan</th>
-              <th className="py-3.5 px-4 w-20 text-center">Koşul</th>
+              <th className="py-3.5 px-4 w-28 text-right">2025 Puanı</th>
+              <th className="py-3.5 px-4 w-20 text-right">Kontenjan</th>
+              <th className="py-3.5 px-4 w-16 text-center">Koşul</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60">
@@ -171,6 +172,15 @@ export const ProgramTable: React.FC<ProgramTableProps> = ({
                     )}
                   </td>
 
+                  {/* 2025 Score */}
+                  <td className="py-3 px-4 text-right font-mono text-emerald-400 font-semibold">
+                    {prog.score2025 ? (
+                      prog.score2025.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 5 })
+                    ) : (
+                      <span className="text-slate-500 text-[11px]">-</span>
+                    )}
+                  </td>
+
                   {/* Quota */}
                   <td className="py-3 px-4 text-right font-mono text-slate-400">
                     {prog.quota || "-"}
@@ -232,7 +242,7 @@ export const ProgramTable: React.FC<ProgramTableProps> = ({
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
                 <div>
                   <span className="block text-[10px] text-slate-500">Şehir / Fakülte</span>
                   <span className="font-medium text-slate-200">{prog.city} / {prog.faculty}</span>
@@ -245,6 +255,12 @@ export const ProgramTable: React.FC<ProgramTableProps> = ({
                   <span className="block text-[10px] text-slate-500">2025 Sıralaması</span>
                   <span className="font-mono font-bold text-slate-200">
                     {prog.rank2025 ? prog.rank2025.toLocaleString("tr-TR") : "Yeni / Dolmadı"}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] text-slate-500">2025 Taban Puanı</span>
+                  <span className="font-mono font-bold text-emerald-400">
+                    {prog.score2025 ? prog.score2025.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 5 }) : "-"}
                   </span>
                 </div>
                 <div>
