@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, BookOpen, CheckCircle2, AlertTriangle, ShieldCheck, Star, Target, Printer, Zap, Award, Layers } from "lucide-react";
+import { X, BookOpen, CheckCircle2, AlertTriangle, ShieldCheck, Star, Target, Printer, Zap, Award, Layers, Heart, ListOrdered } from "lucide-react";
 
 interface UserGuideModalProps {
   isOpen: boolean;
@@ -47,7 +47,7 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
               Sistem Nasıl Çalışır?
             </h3>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Bu kılavuz, ÖSYM&apos;nin 2.956 resmî Devlet Üniversitesi programı üzerinden başarı sıralamalarınıza uygun bölümleri doğru analiz etmeniz için hazırlanmıştır. İndirme yapmadan doğrudan ekranınızda adım adım inceleyebilirsiniz.
+              Bu kılavuz, ÖSYM&apos;nin 2.956 resmî Devlet Üniversitesi programı üzerinden kendi başarı sıralamalarınıza uygun bölümleri doğru analiz etmeniz için hazırlanmıştır. İndirme yapmadan doğrudan ekranınızda adım adım inceleyebilirsiniz.
             </p>
           </div>
 
@@ -57,29 +57,33 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
               <span className="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">
                 1
               </span>
-              <h4 className="text-sm font-bold text-white">Sınav Sıralaması & Puan Kartları Paneli</h4>
+              <h4 className="text-sm font-bold text-white">Sınav Sıralaması & Puan Girme Paneli</h4>
             </div>
 
             <p className="text-xs text-slate-400 pl-8">
-              Resmî sınav sonuç belgenizdeki <strong>SAY</strong>, <strong>EA</strong>, <strong>SÖZ</strong> ve <strong>TYT</strong> sıralamalarınız cihaz odaklı sabit olarak tanımlanmıştır.
+              Her aday kendi YKS sonuç belgesindeki <strong>SAY</strong>, <strong>EA</strong>, <strong>SÖZ</strong>, <strong>DİL</strong> ve <strong>TYT</strong> başarı sıralamaları ile puanlarını ilgili kutucuklara girer. Girilen veriler cihazınıza otomatik kaydedilir.
             </p>
 
-            <div className="pl-8 grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px]">
+            <div className="pl-8 grid grid-cols-2 sm:grid-cols-6 gap-2 text-[11px]">
               <div className="bg-slate-900 p-2 rounded-lg border border-slate-800 text-center">
                 <span className="font-bold text-cyan-400 block">SAY</span>
-                <span className="text-slate-300">722.465</span>
+                <span className="text-slate-400 text-[10px]">Örn: 120.500</span>
               </div>
               <div className="bg-slate-900 p-2 rounded-lg border border-slate-800 text-center">
                 <span className="font-bold text-amber-400 block">EA</span>
-                <span className="text-slate-300">613.399</span>
+                <span className="text-slate-400 text-[10px]">Örn: 45.000</span>
               </div>
               <div className="bg-slate-900 p-2 rounded-lg border border-slate-800 text-center">
                 <span className="font-bold text-purple-400 block">SÖZ</span>
-                <span className="text-slate-300">431.601</span>
+                <span className="text-slate-400 text-[10px]">Örn: 87.000</span>
+              </div>
+              <div className="bg-slate-900 p-2 rounded-lg border border-slate-800 text-center">
+                <span className="font-bold text-emerald-400 block">DİL</span>
+                <span className="text-slate-400 text-[10px]">Örn: 12.000</span>
               </div>
               <div className="bg-slate-900 p-2 rounded-lg border border-slate-800 text-center">
                 <span className="font-bold text-blue-400 block">TYT</span>
-                <span className="text-slate-300">802.058</span>
+                <span className="text-slate-400 text-[10px]">Örn: 150.000</span>
               </div>
               <div className="bg-slate-900 p-2 rounded-lg border border-indigo-500/50 text-center">
                 <span className="font-bold text-indigo-400 block flex items-center justify-center gap-1">
@@ -172,6 +176,51 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({ isOpen, onClose 
             <p className="text-xs text-slate-400 pl-8">
               Filtre panelindeki <strong className="text-white">&quot;Filtrelenmiş Sonuçları PDF İndir / Yazdır&quot;</strong> butonuna bastığınızda, örneğin sadece <strong>Kesin / Garanti</strong> olanları seçtiyseniz yalnızca Kesin olan programlar resmî PDF formatında çıktılanır.
             </p>
+          </div>
+
+          {/* Adım 5: Tercih Listem ve Kalp Butonu Kullanımı */}
+          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 sm:p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">
+                5
+              </span>
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <ListOrdered className="w-4 h-4 text-pink-400" />
+                Tercih Listem (Beğeni / Kalp Butonu Kullanımı)
+              </h4>
+            </div>
+
+            <div className="pl-8 space-y-2 text-xs text-slate-300">
+              <p>
+                Beğendiğiniz programları tercih listenize eklemek ve kendi 24 tercihinizi oluşturmak son derece kolaydır:
+              </p>
+
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-pink-500/20 text-pink-400 border border-pink-500/30">
+                    <Heart className="w-4 h-4 fill-pink-500 text-pink-500" />
+                  </div>
+                  <span className="font-semibold text-slate-200">1. Beğeni (Kalp) Butonuna Basın:</span>
+                  <span className="text-slate-400 text-[11px]">Tablodaki her programın solundaki kalp butonuna basarak bölümü listenize ekleyin.</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                    <ListOrdered className="w-4 h-4" />
+                  </div>
+                  <span className="font-semibold text-slate-200">2. Tercih Listem Sekmesine Geçin:</span>
+                  <span className="text-slate-400 text-[11px]">Üst menüdeki &quot;Tercih Listem&quot; sekmesine basarak eklediğiniz tüm bölümleri görün.</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <Printer className="w-4 h-4" />
+                  </div>
+                  <span className="font-semibold text-slate-200">3. Sıralayın & Resmî PDF İndirin:</span>
+                  <span className="text-slate-400 text-[11px]">Yukarı-aşağı oklarla tercihlerinizi öncelik sıranıza koyun ve ÖSYM Bildirim Taslağı PDF olarak indirin.</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
