@@ -27,6 +27,7 @@ export default function Home() {
     EA: 613399,
     SOZ: 431601,
     DIL: null,
+    TYT: 802058,
   });
 
   const [userScores, setUserScores] = useState<UserScores>({
@@ -34,6 +35,7 @@ export default function Home() {
     EA: 266.81323,
     SOZ: 275.60440,
     DIL: null,
+    TYT: 303.70941,
   });
 
   const [activeScoreType, setActiveScoreType] = useState<ScoreType>("SAY");

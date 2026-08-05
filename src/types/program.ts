@@ -1,4 +1,4 @@
-export type ScoreType = "SAY" | "EA" | "SOZ" | "DIL";
+export type ScoreType = "SAY" | "EA" | "SOZ" | "DIL" | "TYT";
 
 export interface UniversityProgram {
   id: string;
@@ -16,7 +16,7 @@ export interface UniversityProgram {
 export type ChanceCategory =
   | "TUMU"
   | "GELME_IHTIMALI"  // [0.80 * S, 1.20 * S] - Rekabet Bölgesi
-  | "KESIN_GARANTI"   // (1.20 * S, 2.00 * S] - Garanti Bölgesi
+  | "KESIN_GARANTI"   // > 1.20 * S - Garanti Bölgesi
   | "ZOR_SURPRIZ"    // < 0.80 * S - Sürpriz / Hayal Bölgesi
   | "YENI_DOLMAYAN"; // rank2025 === null || rank2025 === 0
 
@@ -25,6 +25,7 @@ export interface UserRanks {
   EA?: number | null;
   SOZ?: number | null;
   DIL?: number | null;
+  TYT?: number | null;
 }
 
 export interface UserScores {
@@ -32,6 +33,7 @@ export interface UserScores {
   EA?: number | null;
   SOZ?: number | null;
   DIL?: number | null;
+  TYT?: number | null;
 }
 
 export interface FilterState {
