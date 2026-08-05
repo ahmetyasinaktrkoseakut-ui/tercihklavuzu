@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { GraduationCap, Heart, Search, ListOrdered, Sparkles, BookOpen } from "lucide-react";
+import { GraduationCap, Heart, Search, ListOrdered, Sparkles, BookOpen, HelpCircle } from "lucide-react";
 
 interface HeaderProps {
   activeTab: "general" | "target" | "preferences";
   setActiveTab: (tab: "general" | "target" | "preferences") => void;
   preferenceCount: number;
-  onOpenImporter?: () => void;
+  onOpenGuide: () => void;
   programCount: number;
 }
 
@@ -15,6 +15,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   setActiveTab,
   preferenceCount,
+  onOpenGuide,
   programCount,
 }) => {
   return (
@@ -85,11 +86,20 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </nav>
 
-          {/* Mobile Actions */}
-          <div className="flex md:hidden items-center gap-3">
+          {/* Actions & Kılavuz Kullanımı Button */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={onOpenGuide}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-indigo-300 bg-indigo-950/70 hover:bg-indigo-900/80 border border-indigo-700/60 rounded-xl shadow-md transition-all"
+              title="Sistem Kullanım Kılavuzu"
+            >
+              <HelpCircle className="w-4 h-4 text-indigo-400" />
+              <span>Kılavuz Kullanımı</span>
+            </button>
+
             <button
               onClick={() => setActiveTab("preferences")}
-              className="relative p-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-300"
+              className="md:hidden relative p-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-300"
             >
               <Heart className="w-5 h-5 text-pink-500" />
               {preferenceCount > 0 && (

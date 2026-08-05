@@ -12,6 +12,7 @@ import { TargetDepartmentSearch } from "../components/TargetDepartmentSearch";
 import { PreferenceDrawer } from "../components/PreferenceDrawer";
 import { DataImporterModal } from "../components/DataImporterModal";
 import { SpecialConditionsModal } from "../components/SpecialConditionsModal";
+import { UserGuideModal } from "../components/UserGuideModal";
 import { Sparkles, Heart, FileCode, CheckCircle, Upload, Award } from "lucide-react";
 
 // Official Fixed Exam Results
@@ -60,8 +61,9 @@ export default function Home() {
   // 6. Custom Print State (for downloading filtered results as PDF)
   const [customPrintData, setCustomPrintData] = useState<{ list: UniversityProgram[]; title: string } | null>(null);
 
-  // 7. Modals
+  // 7. Modals State
   const [isImporterOpen, setIsImporterOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [conditionsModal, setConditionsModal] = useState<{ isOpen: boolean; text: string; name: string }>({
     isOpen: false,
     text: "",
@@ -234,7 +236,7 @@ export default function Home() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         preferenceCount={preferences.length}
-        onOpenImporter={() => setIsImporterOpen(true)}
+        onOpenGuide={() => setIsGuideOpen(true)}
         programCount={programs.length}
       />
 
@@ -411,6 +413,11 @@ export default function Home() {
       </div>
 
       {/* Modals */}
+      <UserGuideModal
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
+
       <DataImporterModal
         isOpen={isImporterOpen}
         onClose={() => setIsImporterOpen(false)}
