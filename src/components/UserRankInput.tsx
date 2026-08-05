@@ -28,18 +28,18 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
   onScoreChange,
   onScoreTypeSelect,
 }) => {
-  // Local string states to allow dots/commas typing like "275.000" or "431.601"
+  // Local string states initialized with fixed YKS exam results
   const [rankTexts, setRankTexts] = useState<Record<ScoreType, string>>({
-    SAY: ranks.SAY ? ranks.SAY.toLocaleString("tr-TR") : "",
-    EA: ranks.EA ? ranks.EA.toLocaleString("tr-TR") : "",
-    SOZ: ranks.SOZ ? ranks.SOZ.toLocaleString("tr-TR") : "",
+    SAY: ranks.SAY ? ranks.SAY.toLocaleString("tr-TR") : "722.465",
+    EA: ranks.EA ? ranks.EA.toLocaleString("tr-TR") : "613.399",
+    SOZ: ranks.SOZ ? ranks.SOZ.toLocaleString("tr-TR") : "431.601",
     DIL: ranks.DIL ? ranks.DIL.toLocaleString("tr-TR") : "",
   });
 
   const [scoreTexts, setScoreTexts] = useState<Record<ScoreType, string>>({
-    SAY: scores.SAY ? strScore(scores.SAY) : "",
-    EA: scores.EA ? strScore(scores.EA) : "",
-    SOZ: scores.SOZ ? strScore(scores.SOZ) : "",
+    SAY: scores.SAY ? strScore(scores.SAY) : "225,18384",
+    EA: scores.EA ? strScore(scores.EA) : "266,81323",
+    SOZ: scores.SOZ ? strScore(scores.SOZ) : "275,60440",
     DIL: scores.DIL ? strScore(scores.DIL) : "",
   });
 

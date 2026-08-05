@@ -21,18 +21,18 @@ export default function Home() {
   // 2. Active Navigation Tab ("general" | "target" | "preferences")
   const [activeTab, setActiveTab] = useState<"general" | "target" | "preferences">("general");
 
-  // 3. User Ranks & Scores
+  // 3. User Ranks & Scores (Sabit YKS Sınav Sonuçları)
   const [userRanks, setUserRanks] = useState<UserRanks>({
-    SAY: null,
-    EA: null,
-    SOZ: null,
+    SAY: 722465,
+    EA: 613399,
+    SOZ: 431601,
     DIL: null,
   });
 
   const [userScores, setUserScores] = useState<UserScores>({
-    SAY: null,
-    EA: null,
-    SOZ: null,
+    SAY: 225.18384,
+    EA: 266.81323,
+    SOZ: 275.60440,
     DIL: null,
   });
 
