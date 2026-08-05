@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { GraduationCap, Heart, Upload, Search, ListOrdered, Sparkles, BookOpen } from "lucide-react";
+import { GraduationCap, Heart, Search, ListOrdered, Sparkles, BookOpen } from "lucide-react";
 
 interface HeaderProps {
   activeTab: "general" | "target" | "preferences";
   setActiveTab: (tab: "general" | "target" | "preferences") => void;
   preferenceCount: number;
-  onOpenImporter: () => void;
+  onOpenImporter?: () => void;
   programCount: number;
 }
 
@@ -15,11 +15,10 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   setActiveTab,
   preferenceCount,
-  onOpenImporter,
   programCount,
 }) => {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-md print:hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Title */}
@@ -86,20 +85,11 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </nav>
 
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onOpenImporter}
-              className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-indigo-300 bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-700/50 rounded-lg transition-all"
-              title="Veri Yükle veya Güncelle"
-            >
-              <Upload className="w-4 h-4 text-indigo-400" />
-              <span className="hidden sm:inline">Veri Yükle / PDF Entegre</span>
-            </button>
-
+          {/* Mobile Actions */}
+          <div className="flex md:hidden items-center gap-3">
             <button
               onClick={() => setActiveTab("preferences")}
-              className="md:hidden relative p-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-300"
+              className="relative p-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-300"
             >
               <Heart className="w-5 h-5 text-pink-500" />
               {preferenceCount > 0 && (

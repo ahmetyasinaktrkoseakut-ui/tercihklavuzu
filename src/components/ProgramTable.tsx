@@ -43,9 +43,9 @@ export const ProgramTable: React.FC<ProgramTableProps> = ({
         <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4 text-slate-500">
           🔍
         </div>
-        <h3 className="text-base font-bold text-slate-200">Sonuç Bulunamadı veya Veri Henüz Yüklenmedi</h3>
+        <h3 className="text-base font-bold text-slate-200">Kriterlerinize Uygun Sonuç Bulunamadı</h3>
         <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
-          Arama veya filtre kriterlerinizi değiştirin. Eğer veri henüz sisteme yüklenmediyse sağ üstteki &quot;Veri Yükle / PDF Entegre&quot; butonunu kullanabilirsiniz.
+          Lütfen arama teriminizi, şehir seçiminizi veya ihtimal filtrenizi değiştirerek tekrar deneyin.
         </p>
       </div>
     );
