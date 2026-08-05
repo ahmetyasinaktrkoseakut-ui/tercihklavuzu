@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ScoreType, UserRanks, UserScores } from "../types/program";
-import { Award, Hash, Zap, CheckCircle2 } from "lucide-react";
+import { Award, Hash, Zap, CheckCircle2, RotateCcw } from "lucide-react";
 
 interface UserRankInputProps {
   ranks: UserRanks;
@@ -11,6 +11,7 @@ interface UserRankInputProps {
   onRankChange: (type: ScoreType, value: number | null) => void;
   onScoreChange: (type: ScoreType, value: number | null) => void;
   onScoreTypeSelect: (type: ScoreType) => void;
+  onResetToDefaults?: () => void;
 }
 
 const SCORE_TYPES: { type: ScoreType; label: string; color: string; bg: string }[] = [
@@ -28,6 +29,7 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
   onRankChange,
   onScoreChange,
   onScoreTypeSelect,
+  onResetToDefaults,
 }) => {
   // Local string states initialized with fixed YKS exam results
   const [rankTexts, setRankTexts] = useState<Record<ScoreType, string>>({
@@ -110,7 +112,7 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-800 pb-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Zap className="w-5 h-5 text-indigo-400" />
               2026 YKS Başarı Sıralamanız ve Puanlarınız
@@ -125,25 +127,38 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
           </div>
           
           <p className="text-xs text-slate-400 mt-1">
-            Resmi YKS sınav sonuç belgenizdeki SAY, EA, SÖZ ve TYT sıralamalarınız sabit olarak tanımlanmıştır.
+            Resmi YKS sınav sonuç belgenizdeki SAY (722.465), EA (613.399), SÖZ (431.601) ve TYT (802.058) sıralamalarınız sabit olarak tanımlanmıştır.
           </p>
         </div>
 
-        {/* Score Type Tabs */}
-        <div className="flex items-center gap-1 bg-slate-950 p-1.5 rounded-xl border border-slate-800 flex-wrap">
-          {SCORE_TYPES.map((st) => (
+        {/* Score Type Tabs & Reset Button */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {onResetToDefaults && (
             <button
-              key={st.type}
-              onClick={() => onScoreTypeSelect(st.type)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                activeScoreType === st.type
-                  ? `bg-indigo-600 text-white shadow-md shadow-indigo-600/30`
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
-              }`}
+              onClick={onResetToDefaults}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-300 bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-700/50 rounded-xl transition-all"
+              title="Resmi Sınav Sonuç Belgesi Değerlerine Sıfırla"
             >
-              {st.type}
+              <RotateCcw className="w-3.5 h-3.5 text-indigo-400" />
+              Sınav Sonuçlarıma Dön
             </button>
-          ))}
+          )}
+
+          <div className="flex items-center gap-1 bg-slate-950 p-1.5 rounded-xl border border-slate-800 flex-wrap">
+            {SCORE_TYPES.map((st) => (
+              <button
+                key={st.type}
+                onClick={() => onScoreTypeSelect(st.type)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeScoreType === st.type
+                    ? `bg-indigo-600 text-white shadow-md shadow-indigo-600/30`
+                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                }`}
+              >
+                {st.type}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

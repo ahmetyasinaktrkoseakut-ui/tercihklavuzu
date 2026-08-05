@@ -14,6 +14,23 @@ import { DataImporterModal } from "../components/DataImporterModal";
 import { SpecialConditionsModal } from "../components/SpecialConditionsModal";
 import { Sparkles, Heart, FileCode, CheckCircle, Upload, Award } from "lucide-react";
 
+// Official Fixed Exam Results
+const DEFAULT_RANKS: UserRanks = {
+  SAY: 722465,
+  EA: 613399,
+  SOZ: 431601,
+  DIL: null,
+  TYT: 802058,
+};
+
+const DEFAULT_SCORES: UserScores = {
+  SAY: 225.18384,
+  EA: 266.81323,
+  SOZ: 275.60440,
+  DIL: null,
+  TYT: 303.70941,
+};
+
 export default function Home() {
   // 1. Data State (Default static data.json or imported dataset)
   const [programs, setPrograms] = useState<UniversityProgram[]>(initialData as UniversityProgram[]);
@@ -21,22 +38,9 @@ export default function Home() {
   // 2. Active Navigation Tab ("general" | "target" | "preferences")
   const [activeTab, setActiveTab] = useState<"general" | "target" | "preferences">("general");
 
-  // 3. User Ranks & Scores (Sabit YKS Sınav Sonuçları)
-  const [userRanks, setUserRanks] = useState<UserRanks>({
-    SAY: 722465,
-    EA: 613399,
-    SOZ: 431601,
-    DIL: null,
-    TYT: 802058,
-  });
-
-  const [userScores, setUserScores] = useState<UserScores>({
-    SAY: 225.18384,
-    EA: 266.81323,
-    SOZ: 275.60440,
-    DIL: null,
-    TYT: 303.70941,
-  });
+  // 3. User Ranks & Scores (Initialized with Official Exam Document Values)
+  const [userRanks, setUserRanks] = useState<UserRanks>(DEFAULT_RANKS);
+  const [userScores, setUserScores] = useState<UserScores>(DEFAULT_SCORES);
 
   const [activeScoreType, setActiveScoreType] = useState<ScoreType>("SAY");
 
@@ -61,14 +65,32 @@ export default function Home() {
     name: "",
   });
 
-  // Load saved ranks & preferences from localStorage on mount
+  // Load saved ranks & preferences from localStorage on mount & auto-clean old broken cache (<1000)
   useEffect(() => {
     try {
       const savedRanks = localStorage.getItem("yks_user_ranks");
-      if (savedRanks) setUserRanks(JSON.parse(savedRanks));
+      if (savedRanks) {
+        const parsed = JSON.parse(savedRanks);
+        // Clean old broken cache values (e.g. 282, 266, 275)
+        const isCorrupted = Object.values(parsed).some(
+          (val) => typeof val === "number" && val > 0 && val < 1000
+        );
+        if (isCorrupted) {
+          setUserRanks(DEFAULT_RANKS);
+          localStorage.setItem("yks_user_ranks", JSON.stringify(DEFAULT_RANKS));
+        } else {
+          setUserRanks(parsed);
+        }
+      } else {
+        localStorage.setItem("yks_user_ranks", JSON.stringify(DEFAULT_RANKS));
+      }
 
       const savedScores = localStorage.getItem("yks_user_scores");
-      if (savedScores) setUserScores(JSON.parse(savedScores));
+      if (savedScores) {
+        setUserScores(JSON.parse(savedScores));
+      } else {
+        localStorage.setItem("yks_user_scores", JSON.stringify(DEFAULT_SCORES));
+      }
 
       const savedPrefs = localStorage.getItem("yks_preferences");
       if (savedPrefs) setPreferences(JSON.parse(savedPrefs));
@@ -82,6 +104,14 @@ export default function Home() {
       console.error("LocalStorage load error:", err);
     }
   }, []);
+
+  // Reset all ranks and scores to official exam document values
+  const handleResetToDefaults = () => {
+    setUserRanks(DEFAULT_RANKS);
+    setUserScores(DEFAULT_SCORES);
+    localStorage.setItem("yks_user_ranks", JSON.stringify(DEFAULT_RANKS));
+    localStorage.setItem("yks_user_scores", JSON.stringify(DEFAULT_SCORES));
+  };
 
   // Sync ranks to localStorage
   const handleRankChange = (type: ScoreType, value: number | null) => {
@@ -201,7 +231,7 @@ export default function Home() {
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto mt-2">
-            12.042 Devlet Üniversitesi programı üzerinden gelişmiş ihtimal hesaplama, bölüm bazlı hedef arama ve tercih listesi robotu
+            2.956 Temiz Devlet Üniversitesi programı üzerinden gelişmiş ihtimal hesaplama, bölüm bazlı hedef arama ve tercih listesi robotu
           </p>
         </div>
 
@@ -216,6 +246,7 @@ export default function Home() {
             setActiveScoreType(st);
             setFilter((prev) => ({ ...prev, scoreType: st }));
           }}
+          onResetToDefaults={handleResetToDefaults}
         />
 
         {/* Tab 1: General Preference Robot */}
