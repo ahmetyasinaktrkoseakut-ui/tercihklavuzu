@@ -12,7 +12,7 @@ import { TargetDepartmentSearch } from "../components/TargetDepartmentSearch";
 import { PreferenceDrawer } from "../components/PreferenceDrawer";
 import { DataImporterModal } from "../components/DataImporterModal";
 import { SpecialConditionsModal } from "../components/SpecialConditionsModal";
-import { Sparkles, Heart, FileCode, CheckCircle, Upload } from "lucide-react";
+import { Sparkles, Heart, FileCode, CheckCircle, Upload, Award } from "lucide-react";
 
 export default function Home() {
   // 1. Data State (Default static data.json or imported dataset)
@@ -184,6 +184,25 @@ export default function Home() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 print:hidden">
+        
+        {/* Prominent Hero Title Banner */}
+        <div className="bg-gradient-to-r from-indigo-950 via-purple-950 to-slate-900 border border-indigo-500/30 rounded-2xl p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute -top-12 -left-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+          
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3">
+            <Award className="w-3.5 h-3.5 text-amber-400" /> Resmi ÖSYM Devlet Üniversitesi Veri Tabanı
+          </span>
+
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+            Ahmet Yasin Aktürk Tarafından Hazırlanan <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">2026 Tercih Kılavuzu</span>
+          </h1>
+
+          <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto mt-2">
+            12.042 Devlet Üniversitesi programı üzerinden gelişmiş ihtimal hesaplama, bölüm bazlı hedef arama ve tercih listesi robotu
+          </p>
+        </div>
+
         {/* User Rank Input Section */}
         <UserRankInput
           ranks={userRanks}
@@ -264,11 +283,11 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-6 mt-12 print:hidden text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© 2026 YKS Tercih Robotu - Statik JSON Tabanlı İhtimal Hesaplayıcı</p>
+          <p>© 2026 Ahmet Yasin Aktürk Tarafından Hazırlanan Tercih Kılavuzu</p>
           <div className="flex items-center gap-4 text-slate-400">
             <span>Client-Side Fast Filtering</span>
             <span>•</span>
-            <span>%80-%120 Rekabet / %120-%200 Garanti Mantığı</span>
+            <span>ÖSYM Resmi Devlet Üniversiteleri Veri Tabanı</span>
           </div>
         </div>
       </footer>
@@ -277,8 +296,8 @@ export default function Home() {
       <div className="hidden print:block p-8 bg-white text-black font-sans">
         <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold uppercase tracking-wider">YKS 2026 Tercih Listesi</h1>
-            <p className="text-sm text-gray-600">ÖSYM Tercih Bildirimi Çalışma Taslağı</p>
+            <h1 className="text-xl font-bold uppercase tracking-wider">Ahmet Yasin Aktürk 2026 Tercih Kılavuzu</h1>
+            <p className="text-xs text-gray-600">ÖSYM Resmi Tercih Bildirimi Çalışma Taslağı</p>
           </div>
           <div className="text-right text-xs">
             <p className="font-bold">Toplam Tercih: {preferences.length} / 24</p>
@@ -316,7 +335,7 @@ export default function Home() {
         </table>
 
         <div className="mt-8 text-xs text-gray-500 border-t border-gray-200 pt-4">
-          <p>* Bu liste YKS Tercih Robotu tarafından bilgilendirme amacıyla oluşturulmuştur. Resmî tercihlerinizi ÖSYM AİS sistemi üzerinden onaylamayı unutmayınız.</p>
+          <p>* Bu liste Ahmet Yasin Aktürk 2026 Tercih Kılavuzu tarafından bilgilendirme amacıyla oluşturulmuştur. Resmî tercihlerinizi ÖSYM AİS sistemi üzerinden onaylamayı unutmayınız.</p>
         </div>
       </div>
 

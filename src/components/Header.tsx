@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   programCount,
 }) => {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Title */}
@@ -29,14 +29,14 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-white tracking-tight">
-                  YKS Tercih Robotu <span className="text-indigo-400">2026</span>
+                <h1 className="text-sm sm:text-base font-extrabold text-white tracking-tight">
+                  Ahmet Yasin Aktürk <span className="text-indigo-400">2026 Tercih Kılavuzu</span>
                 </h1>
-                <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                  {programCount.toLocaleString("tr-TR")} Program
+                <span className="hidden sm:inline-block text-[11px] px-2 py-0.5 rounded-full font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                  {programCount.toLocaleString("tr-TR")} Devlet Programı
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-[11px] text-slate-400">
                 Statik JSON Tabanlı İhtimal Hesaplama & Tercih Danışmanı
               </p>
             </div>
@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
           <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800">
             <button
               onClick={() => setActiveTab("general")}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 activeTab === "general"
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                   : "text-slate-400 hover:text-white hover:bg-slate-800/60"
@@ -58,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => setActiveTab("target")}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 activeTab === "target"
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                   : "text-slate-400 hover:text-white hover:bg-slate-800/60"
@@ -70,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => setActiveTab("preferences")}
-              className={`relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+              className={`relative flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 activeTab === "preferences"
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                   : "text-slate-400 hover:text-white hover:bg-slate-800/60"
