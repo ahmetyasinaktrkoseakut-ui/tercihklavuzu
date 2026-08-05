@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import { UniversityProgram, ScoreType, UserRanks } from "../types/program";
 import { calculateChance, ProgramChanceResult } from "../utils/chanceCalculator";
 import { ProgramTable } from "./ProgramTable";
-import { Search, Target, BookOpen, Sparkles, Filter } from "lucide-react";
+import { Search, Target, BookOpen, Sparkles, Filter, Printer } from "lucide-react";
 
 interface TargetDepartmentSearchProps {
   programs: UniversityProgram[];
@@ -13,6 +13,20 @@ interface TargetDepartmentSearchProps {
   favoritedIds: Set<string>;
   onToggleFavorite: (program: UniversityProgram) => void;
   onOpenConditionsModal: (conditions: string, programName: string) => void;
+  onPrintResults?: (filteredList: UniversityProgram[], title: string) => void;
+}
+
+function trNormalize(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/İ/g, "i")
+    .replace(/I/g, "ı")
+    .replace(/Ğ/g, "ğ")
+    .replace(/Ü/g, "ü")
+    .replace(/Ş/g, "ş")
+    .replace(/Ö/g, "ö")
+    .replace(/Ç/g, "ç")
+    .toLowerCase();
 }
 
 export const TargetDepartmentSearch: React.FC<TargetDepartmentSearchProps> = ({
@@ -22,32 +36,40 @@ export const TargetDepartmentSearch: React.FC<TargetDepartmentSearchProps> = ({
   favoritedIds,
   onToggleFavorite,
   onOpenConditionsModal,
+  onPrintResults,
 }) => {
   const [targetQuery, setTargetQuery] = useState("");
+  const [selectedScoreType, setSelectedScoreType] = useState<string>("ALL");
   const [selectedChanceFilter, setSelectedChanceFilter] = useState<string>("ALL");
-
-  const currentRank = userRanks[activeScoreType] || null;
 
   // Filter programs specifically for the target department
   const filteredPrograms = useMemo(() => {
     if (!targetQuery.trim()) return [];
 
-    const queryLower = targetQuery.trim().toLowerCase();
+    const queryNorm = trNormalize(targetQuery.trim());
 
     return programs.filter((p) => {
-      const deptMatch = p.department.toLowerCase().includes(queryLower);
-      const scoreTypeMatch = p.scoreType === activeScoreType;
+      const deptNorm = trNormalize(p.department);
+      const deptMatch = deptNorm.includes(queryNorm);
 
-      if (!deptMatch || !scoreTypeMatch) return false;
+      if (!deptMatch) return false;
+
+      // Score type match (allow ALL or specific)
+      if (selectedScoreType !== "ALL" && p.scoreType !== selectedScoreType) {
+        return false;
+      }
+
+      // Calculate chance for that specific program's score type rank
+      const rankForType = userRanks[p.scoreType] || null;
 
       if (selectedChanceFilter !== "ALL") {
-        const chance = calculateChance(p.rank2025, currentRank);
+        const chance = calculateChance(p.rank2025, rankForType);
         if (chance.category !== selectedChanceFilter) return false;
       }
 
       return true;
     });
-  }, [programs, targetQuery, activeScoreType, selectedChanceFilter, currentRank]);
+  }, [programs, targetQuery, selectedScoreType, selectedChanceFilter, userRanks]);
 
   // Suggested popular department tags
   const POPULAR_DEPTS = [
@@ -61,7 +83,11 @@ export const TargetDepartmentSearch: React.FC<TargetDepartmentSearchProps> = ({
     "Mimarlık",
     "İlköğretim Matematik Öğretmenliği",
     "İngilizce Öğretmenliği",
+    "Hemşirelik",
+    "Adalet",
   ];
+
+  const currentRank = userRanks[activeScoreType] || null;
 
   return (
     <div className="space-y-6">
@@ -76,7 +102,7 @@ export const TargetDepartmentSearch: React.FC<TargetDepartmentSearchProps> = ({
               Hedef Bölüm Bazlı Tercih & İhtimal Arama
             </h2>
             <p className="text-xs text-slate-300 mt-0.5">
-              İstediğiniz spesifik bölümü yazın ({activeScoreType} türünde); sistem başarı sıralamanıza göre o bölümün gelebileceği tüm üniversiteleri ve ihtimal durumlarını listelesin.
+              İstediğiniz bölümü yazın; sistem başarı sıralamalarınıza göre o bölümün gelebileceği tüm Devlet Üniversitelerini ve ihtimal durumlarını listelesin.
             </p>
           </div>
         </div>
@@ -120,26 +146,62 @@ export const TargetDepartmentSearch: React.FC<TargetDepartmentSearchProps> = ({
             <div className="flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-indigo-400" />
               <h3 className="text-sm font-bold text-white">
-                &quot;{targetQuery}&quot; Bölümüne Ait Sonuçlar ({filteredPrograms.length})
+                &quot;{targetQuery}&quot; Bölümüne Ait Sonuçlar ({filteredPrograms.length} Program)
               </h3>
             </div>
 
-            {/* Sub-filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400 flex items-center gap-1">
-                <Filter className="w-3.5 h-3.5" /> İhtimal:
-              </span>
-              <select
-                value={selectedChanceFilter}
-                onChange={(e) => setSelectedChanceFilter(e.target.value)}
-                className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 outline-none"
-              >
-                <option value="ALL">Tüm İhtimaller</option>
-                <option value="GELME_IHTIMALI">Gelme İhtimali Var (Rekabet)</option>
-                <option value="KESIN_GARANTI">Kesin / Garanti</option>
-                <option value="ZOR_SURPRIZ">Zor İhtimal (Sürpriz)</option>
-                <option value="YENI_DOLMAYAN">Yeni / Dolmayan</option>
-              </select>
+            {/* Sub-filters & PDF Button */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Score Type Filter */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-slate-400">Puan Türü:</span>
+                <select
+                  value={selectedScoreType}
+                  onChange={(e) => setSelectedScoreType(e.target.value)}
+                  className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 outline-none"
+                >
+                  <option value="ALL">Tüm Puan Türleri</option>
+                  <option value="SAY">SAY (Sayısal)</option>
+                  <option value="EA">EA (Eşit Ağırlık)</option>
+                  <option value="SOZ">SÖZ (Sözel)</option>
+                  <option value="DIL">DİL (Dil)</option>
+                  <option value="TYT">TYT (Ön Lisans)</option>
+                </select>
+              </div>
+
+              {/* Chance Filter */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-slate-400 flex items-center gap-1">
+                  <Filter className="w-3.5 h-3.5" /> İhtimal:
+                </span>
+                <select
+                  value={selectedChanceFilter}
+                  onChange={(e) => setSelectedChanceFilter(e.target.value)}
+                  className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 outline-none"
+                >
+                  <option value="ALL">Tüm İhtimaller</option>
+                  <option value="GELME_IHTIMALI">Gelme İhtimali Var (Rekabet)</option>
+                  <option value="KESIN_GARANTI">Kesin / Garanti</option>
+                  <option value="ZOR_SURPRIZ">Zor İhtimal (Sürpriz)</option>
+                  <option value="YENI_DOLMAYAN">Yeni / Dolmayan</option>
+                </select>
+              </div>
+
+              {/* PDF / Print Button for Target Department Results */}
+              {onPrintResults && filteredPrograms.length > 0 && (
+                <button
+                  onClick={() =>
+                    onPrintResults(
+                      filteredPrograms,
+                      `" ${targetQuery} " Hedef Bölüm Arama Sonuçları (${filteredPrograms.length} Program)`
+                    )
+                  }
+                  className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-md transition-all"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  Bu Bölüm Sonuçlarını PDF / Yazdır
+                </button>
+              )}
             </div>
           </div>
 
@@ -156,9 +218,9 @@ export const TargetDepartmentSearch: React.FC<TargetDepartmentSearchProps> = ({
           <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-4">
             <Target className="w-8 h-8" />
           </div>
-          <h3 className="text-base font-bold text-slate-200">Aramak İstediğiniz Bölümü Yazın</h3>
+          <h3 className="text-base font-bold text-slate-200">Aramak İstediğiniz Bölümü Yazın veya Etiketlere Tıklayın</h3>
           <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
-            Yukarıdaki kutucuğa hedeflediğiniz bölüm adını girdiğinizde, sıralamanıza uygun tüm üniversiteler ihtimal derecelerine göre anında listelenecektir.
+            Yukarıdaki arama kutusuna bölüm adını girdiğinizde veya popüler arama etiketlerinden birine tıkladığınızda tüm uyumlu Devlet Üniversiteleri anında listelenir.
           </p>
         </div>
       )}

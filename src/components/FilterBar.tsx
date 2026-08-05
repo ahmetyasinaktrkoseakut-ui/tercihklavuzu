@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { FilterState, ChanceCategory, ScoreType } from "../types/program";
-import { Search, Filter, MapPin, CheckCircle2, AlertTriangle, ShieldCheck, Sparkles, X, Star } from "lucide-react";
+import { FilterState, ChanceCategory } from "../types/program";
+import { Search, Filter, MapPin, CheckCircle2, AlertTriangle, ShieldCheck, Sparkles, X, Star, Printer } from "lucide-react";
 
 interface FilterBarProps {
   filter: FilterState;
@@ -10,6 +10,7 @@ interface FilterBarProps {
   availableCities: string[];
   totalMatchCount: number;
   onReset: () => void;
+  onPrintResults?: () => void;
 }
 
 const CHANCE_BUTTONS: { id: ChanceCategory; label: string; bg: string; activeBg: string; text: string; icon: React.ReactNode }[] = [
@@ -34,7 +35,7 @@ const CHANCE_BUTTONS: { id: ChanceCategory; label: string; bg: string; activeBg:
     label: "Kesin / Garanti",
     bg: "bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 border border-emerald-500/30",
     activeBg: "bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/30",
-    text: "> 1.20 * S (120k ve üstü)",
+    text: "> 1.20 * S (Güvenli)",
     icon: <ShieldCheck className="w-4 h-4" />,
   },
   {
@@ -61,6 +62,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   availableCities,
   totalMatchCount,
   onReset,
+  onPrintResults,
 }) => {
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm space-y-5">
@@ -98,7 +100,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             onChange={(e) => setFilter((prev) => ({ ...prev, selectedCity: e.target.value }))}
             className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 outline-none transition-all appearance-none cursor-pointer"
           >
-            <option value="ALL">Tüm Şehirler ({availableCities.length})</option>
+            <option value="ALL">Tüm Şehirler ({availableCities.length} İl)</option>
             {availableCities.map((city) => (
               <option key={city} value={city}>
                 {city}
@@ -111,18 +113,31 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
       </div>
 
-      {/* Chance Category Filter Pills */}
+      {/* Chance Category Filter Pills & PDF Print Button */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
           <span className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
             <Filter className="w-3.5 h-3.5 text-indigo-400" />
             İhtimal Durumuna Göre Filtrele:
           </span>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="text-xs text-slate-400">
               Bulunan: <strong className="text-indigo-400 font-bold">{totalMatchCount}</strong> program
             </span>
+
+            {/* Print / PDF Button for Filtered Results */}
+            {onPrintResults && totalMatchCount > 0 && (
+              <button
+                onClick={onPrintResults}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-md shadow-indigo-600/30 transition-all"
+                title="Şu An Ekranızdaki Filtrelenmiş Sonuçları PDF Olarak İndir / Yazdır"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                Filtrelenmiş Sonuçları PDF İndir / Yazdır
+              </button>
+            )}
+
             {(filter.chanceCategory !== "TUMU" ||
               filter.selectedCity !== "ALL" ||
               filter.searchQuery !== "") && (

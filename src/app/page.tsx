@@ -57,7 +57,10 @@ export default function Home() {
   // 5. Favorited Preferences Basket
   const [preferences, setPreferences] = useState<UniversityProgram[]>([]);
 
-  // 6. Modals
+  // 6. Custom Print State (for downloading filtered results as PDF)
+  const [customPrintData, setCustomPrintData] = useState<{ list: UniversityProgram[]; title: string } | null>(null);
+
+  // 7. Modals
   const [isImporterOpen, setIsImporterOpen] = useState(false);
   const [conditionsModal, setConditionsModal] = useState<{ isOpen: boolean; text: string; name: string }>({
     isOpen: false,
@@ -71,7 +74,6 @@ export default function Home() {
       const savedRanks = localStorage.getItem("yks_user_ranks");
       if (savedRanks) {
         const parsed = JSON.parse(savedRanks);
-        // Clean old broken cache values (e.g. 282, 266, 275)
         const isCorrupted = Object.values(parsed).some(
           (val) => typeof val === "number" && val > 0 && val < 1000
         );
@@ -104,14 +106,6 @@ export default function Home() {
       console.error("LocalStorage load error:", err);
     }
   }, []);
-
-  // Reset all ranks and scores to official exam document values
-  const handleResetToDefaults = () => {
-    setUserRanks(DEFAULT_RANKS);
-    setUserScores(DEFAULT_SCORES);
-    localStorage.setItem("yks_user_ranks", JSON.stringify(DEFAULT_RANKS));
-    localStorage.setItem("yks_user_scores", JSON.stringify(DEFAULT_SCORES));
-  };
 
   // Sync ranks to localStorage
   const handleRankChange = (type: ScoreType, value: number | null) => {
@@ -201,7 +195,34 @@ export default function Home() {
     });
   }, [programs, activeScoreType, filter, userRanks]);
 
+  // Print Filtered Results List as PDF
+  const handlePrintFilteredResults = (listToPrint: UniversityProgram[], titleText: string) => {
+    setCustomPrintData({ list: listToPrint, title: titleText });
+    setTimeout(() => {
+      window.print();
+      setCustomPrintData(null);
+    }, 150);
+  };
+
   const currentRank = userRanks[activeScoreType] || null;
+
+  // Determine current active print title and list
+  let printTitle = "YKS 2026 Tercih Listem Taslağı";
+  let printList = preferences;
+
+  if (customPrintData) {
+    printTitle = customPrintData.title;
+    printList = customPrintData.list;
+  } else if (activeTab === "general") {
+    let filterName = "Tüm Programlar";
+    if (filter.chanceCategory === "KESIN_GARANTI") filterName = "KESİN / GARANTİ PROGRAMLAR (> 1.20x S)";
+    else if (filter.chanceCategory === "GELME_IHTIMALI") filterName = "GELME İHTİMALİ VAR (REKABET) PROGRAMLAR [0.80x - 1.20x S]";
+    else if (filter.chanceCategory === "ZOR_SURPRIZ") filterName = "ZOR İHTİMAL (SÜRPRİZ) PROGRAMLAR (< 0.80x S)";
+    else if (filter.chanceCategory === "YENI_DOLMAYAN") filterName = "YENİ AÇILAN / DOLMAYAN PROGRAMLAR";
+
+    printTitle = `${activeScoreType} Puan Türü - ${filterName} (${filteredPrograms.length} Adet)`;
+    printList = filteredPrograms;
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white flex flex-col">
@@ -246,7 +267,6 @@ export default function Home() {
             setActiveScoreType(st);
             setFilter((prev) => ({ ...prev, scoreType: st }));
           }}
-          onResetToDefaults={handleResetToDefaults}
         />
 
         {/* Tab 1: General Preference Robot */}
@@ -268,6 +288,7 @@ export default function Home() {
                   onlyNewOrEmpty: false,
                 })
               }
+              onPrintResults={() => handlePrintFilteredResults(filteredPrograms, printTitle)}
             />
 
             {/* Results Table & Cards */}
@@ -295,6 +316,7 @@ export default function Home() {
               onOpenConditionsModal={(text, name) =>
                 setConditionsModal({ isOpen: true, text, name })
               }
+              onPrintResults={(list, title) => handlePrintFilteredResults(list, title)}
             />
           </div>
         )}
@@ -325,23 +347,31 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Dedicated Print View (Visible only during window.print()) */}
+      {/* Dedicated Print / PDF View (Visible only during window.print()) */}
       <div className="hidden print:block p-8 bg-white text-black font-sans">
         <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-center">
           <div>
             <h1 className="text-xl font-bold uppercase tracking-wider">Ahmet Yasin Aktürk 2026 Tercih Kılavuzu</h1>
-            <p className="text-xs text-gray-600">ÖSYM Resmi Tercih Bildirimi Çalışma Taslağı</p>
+            <p className="text-xs text-gray-700 font-semibold mt-0.5">{printTitle}</p>
           </div>
           <div className="text-right text-xs">
-            <p className="font-bold">Toplam Tercih: {preferences.length} / 24</p>
+            <p className="font-bold">Toplam Program: {printList.length} Adet</p>
             <p>Tarih: {new Date().toLocaleDateString("tr-TR")}</p>
           </div>
         </div>
 
+        {/* User Ranks & Scores Summary in Print */}
+        <div className="mb-4 bg-gray-100 p-3 rounded text-xs border border-gray-300 flex justify-between">
+          <span><strong>SAY:</strong> 722.465 (225,18)</span>
+          <span><strong>EA:</strong> 613.399 (266,81)</span>
+          <span><strong>SÖZ:</strong> 431.601 (275,60)</span>
+          <span><strong>TYT:</strong> 802.058 (303,70)</span>
+        </div>
+
         <table className="w-full text-left text-xs border-collapse border border-gray-300">
           <thead>
-            <tr className="bg-gray-100 border-b border-gray-300 font-bold">
-              <th className="p-2 border border-gray-300 w-8 text-center">Sıra</th>
+            <tr className="bg-gray-200 border-b border-gray-300 font-bold">
+              <th className="p-2 border border-gray-300 w-8 text-center">#</th>
               <th className="p-2 border border-gray-300">Üniversite Adı</th>
               <th className="p-2 border border-gray-300">Fakülte & Bölüm</th>
               <th className="p-2 border border-gray-300">Şehir</th>
@@ -351,7 +381,7 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {preferences.map((prog, idx) => (
+            {printList.map((prog, idx) => (
               <tr key={prog.id} className="border-b border-gray-200">
                 <td className="p-2 border border-gray-300 text-center font-bold">{idx + 1}</td>
                 <td className="p-2 border border-gray-300 font-semibold">{prog.universityName}</td>
@@ -368,7 +398,7 @@ export default function Home() {
         </table>
 
         <div className="mt-8 text-xs text-gray-500 border-t border-gray-200 pt-4">
-          <p>* Bu liste Ahmet Yasin Aktürk 2026 Tercih Kılavuzu tarafından bilgilendirme amacıyla oluşturulmuştur. Resmî tercihlerinizi ÖSYM AİS sistemi üzerinden onaylamayı unutmayınız.</p>
+          <p>* Bu rapor Ahmet Yasin Aktürk 2026 Tercih Kılavuzu tarafından bilgilendirme amacıyla oluşturulmuştur.</p>
         </div>
       </div>
 
