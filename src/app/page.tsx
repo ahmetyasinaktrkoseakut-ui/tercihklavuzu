@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { UniversityProgram, ScoreType, UserRanks, UserScores, FilterState } from "../types/program";
+import { UniversityProgram, ScoreType, ActiveScoreType, UserRanks, UserScores, FilterState } from "../types/program";
 import { calculateChance, ProgramChanceResult } from "../utils/chanceCalculator";
 import initialData from "../data/data.json";
 import { Header } from "../components/Header";
@@ -42,11 +42,11 @@ export default function Home() {
   const [userRanks, setUserRanks] = useState<UserRanks>(DEFAULT_RANKS);
   const [userScores, setUserScores] = useState<UserScores>(DEFAULT_SCORES);
 
-  const [activeScoreType, setActiveScoreType] = useState<ScoreType>("SAY");
+  const [activeScoreType, setActiveScoreType] = useState<ActiveScoreType>("ALL");
 
   // 4. Filters State
   const [filter, setFilter] = useState<FilterState>({
-    scoreType: "SAY",
+    scoreType: "ALL",
     chanceCategory: "TUMU",
     selectedCity: "ALL",
     searchQuery: "",
@@ -164,12 +164,13 @@ export default function Home() {
 
   // High Performance Client-Side Filtering with useMemo
   const filteredPrograms = useMemo(() => {
-    const currentRank = userRanks[activeScoreType] || null;
     const queryLower = filter.searchQuery.trim().toLowerCase();
 
     return programs.filter((prog) => {
-      // 1. Score Type Match
-      if (prog.scoreType !== activeScoreType) return false;
+      // 1. Score Type Match (Allow ALL or specific type)
+      if (activeScoreType !== "ALL" && prog.scoreType !== activeScoreType) {
+        return false;
+      }
 
       // 2. City Match
       if (filter.selectedCity !== "ALL" && prog.city !== filter.selectedCity) {
@@ -187,7 +188,8 @@ export default function Home() {
 
       // 4. Chance Category Filter
       if (filter.chanceCategory !== "TUMU") {
-        const chance = calculateChance(prog.rank2025, currentRank);
+        const rankForProg = userRanks[prog.scoreType] || null;
+        const chance = calculateChance(prog.rank2025, rankForProg);
         if (chance.category !== filter.chanceCategory) return false;
       }
 
@@ -204,7 +206,7 @@ export default function Home() {
     }, 150);
   };
 
-  const currentRank = userRanks[activeScoreType] || null;
+  const currentRank = activeScoreType !== "ALL" ? (userRanks[activeScoreType] || null) : null;
 
   // Determine current active print title and list
   let printTitle = "YKS 2026 Tercih Listem Taslağı";
@@ -220,7 +222,8 @@ export default function Home() {
     else if (filter.chanceCategory === "ZOR_SURPRIZ") filterName = "ZOR İHTİMAL (SÜRPRİZ) PROGRAMLAR (< 0.80x S)";
     else if (filter.chanceCategory === "YENI_DOLMAYAN") filterName = "YENİ AÇILAN / DOLMAYAN PROGRAMLAR";
 
-    printTitle = `${activeScoreType} Puan Türü - ${filterName} (${filteredPrograms.length} Adet)`;
+    const scoreTypeName = activeScoreType === "ALL" ? "Tüm Puan Türleri" : `${activeScoreType} Puan Türü`;
+    printTitle = `${scoreTypeName} - ${filterName} (${filteredPrograms.length} Adet)`;
     printList = filteredPrograms;
   }
 
@@ -295,6 +298,7 @@ export default function Home() {
             <ProgramTable
               programs={filteredPrograms}
               userRank={currentRank}
+              userRanks={userRanks}
               favoritedIds={favoritedIds}
               onToggleFavorite={handleToggleFavorite}
               onOpenConditionsModal={(text, name) =>
@@ -310,7 +314,7 @@ export default function Home() {
             <TargetDepartmentSearch
               programs={programs}
               userRanks={userRanks}
-              activeScoreType={activeScoreType}
+              activeScoreType={activeScoreType === "ALL" ? "SAY" : activeScoreType}
               favoritedIds={favoritedIds}
               onToggleFavorite={handleToggleFavorite}
               onOpenConditionsModal={(text, name) =>

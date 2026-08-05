@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ScoreType, UserRanks, UserScores } from "../types/program";
-import { Award, Hash, Zap, CheckCircle2, RotateCcw } from "lucide-react";
+import { ScoreType, ActiveScoreType, UserRanks, UserScores } from "../types/program";
+import { Award, Hash, Zap, CheckCircle2, RotateCcw, Layers } from "lucide-react";
 
 interface UserRankInputProps {
   ranks: UserRanks;
   scores: UserScores;
-  activeScoreType: ScoreType;
+  activeScoreType: ActiveScoreType;
   onRankChange: (type: ScoreType, value: number | null) => void;
   onScoreChange: (type: ScoreType, value: number | null) => void;
-  onScoreTypeSelect: (type: ScoreType) => void;
+  onScoreTypeSelect: (type: ActiveScoreType) => void;
   onResetToDefaults?: () => void;
 }
 
@@ -125,10 +125,6 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
               </span>
             )}
           </div>
-          
-          <p className="text-xs text-slate-400 mt-1">
-            Resmi YKS sınav sonuç belgenizdeki SAY (722.465), EA (613.399), SÖZ (431.601) ve TYT (802.058) sıralamalarınız sabit olarak tanımlanmıştır.
-          </p>
         </div>
 
         {/* Score Type Tabs & Reset Button */}
@@ -145,13 +141,26 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
           )}
 
           <div className="flex items-center gap-1 bg-slate-950 p-1.5 rounded-xl border border-slate-800 flex-wrap">
+            {/* TÜMÜ Tab */}
+            <button
+              onClick={() => onScoreTypeSelect("ALL")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                activeScoreType === "ALL"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              TÜMÜ
+            </button>
+
             {SCORE_TYPES.map((st) => (
               <button
                 key={st.type}
                 onClick={() => onScoreTypeSelect(st.type)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   activeScoreType === st.type
-                    ? `bg-indigo-600 text-white shadow-md shadow-indigo-600/30`
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                     : "text-slate-400 hover:text-white hover:bg-slate-800"
                 }`}
               >

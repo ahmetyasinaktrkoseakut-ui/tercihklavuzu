@@ -1,4 +1,5 @@
 export type ScoreType = "SAY" | "EA" | "SOZ" | "DIL" | "TYT";
+export type ActiveScoreType = ScoreType | "ALL";
 
 export interface UniversityProgram {
   id: string;
@@ -37,7 +38,7 @@ export interface UserScores {
 }
 
 export interface FilterState {
-  scoreType: ScoreType | "ALL";
+  scoreType: ActiveScoreType;
   chanceCategory: ChanceCategory;
   selectedCity: string;
   searchQuery: string;

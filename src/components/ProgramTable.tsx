@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { UniversityProgram } from "../types/program";
+import { UniversityProgram, UserRanks } from "../types/program";
 import { calculateChance, ProgramChanceResult } from "../utils/chanceCalculator";
 import { Heart, Info, MapPin, Building2, ChevronLeft, ChevronRight, Check } from "lucide-react";
 
 interface ProgramTableProps {
   programs: UniversityProgram[];
   userRank: number | null;
+  userRanks?: UserRanks;
   favoritedIds: Set<string>;
   onToggleFavorite: (program: UniversityProgram) => void;
   onOpenConditionsModal: (conditions: string, programName: string) => void;
@@ -18,6 +19,7 @@ const ITEMS_PER_PAGE = 50;
 export const ProgramTable: React.FC<ProgramTableProps> = ({
   programs,
   userRank,
+  userRanks,
   favoritedIds,
   onToggleFavorite,
   onOpenConditionsModal,
@@ -101,7 +103,8 @@ export const ProgramTable: React.FC<ProgramTableProps> = ({
           </thead>
           <tbody className="divide-y divide-slate-800/60">
             {pagePrograms.map((prog) => {
-              const chance: ProgramChanceResult = calculateChance(prog.rank2025, userRank);
+              const rankForProg = userRanks ? (userRanks[prog.scoreType] || null) : userRank;
+              const chance: ProgramChanceResult = calculateChance(prog.rank2025, rankForProg);
               const isFav = favoritedIds.has(prog.id);
 
               return (
@@ -197,7 +200,8 @@ export const ProgramTable: React.FC<ProgramTableProps> = ({
       {/* Mobile Card List View */}
       <div className="lg:hidden space-y-3">
         {pagePrograms.map((prog) => {
-          const chance: ProgramChanceResult = calculateChance(prog.rank2025, userRank);
+          const rankForProg = userRanks ? (userRanks[prog.scoreType] || null) : userRank;
+          const chance: ProgramChanceResult = calculateChance(prog.rank2025, rankForProg);
           const isFav = favoritedIds.has(prog.id);
 
           return (
