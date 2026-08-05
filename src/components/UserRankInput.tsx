@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ScoreType, UserRanks, UserScores } from "../types/program";
 import { Award, Hash, Zap } from "lucide-react";
 
@@ -28,6 +28,72 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
   onScoreChange,
   onScoreTypeSelect,
 }) => {
+  // Local string states to allow dots/commas typing like "275.000"
+  const [rankTexts, setRankTexts] = useState<Record<ScoreType, string>>({
+    SAY: ranks.SAY ? ranks.SAY.toLocaleString("tr-TR") : "",
+    EA: ranks.EA ? ranks.EA.toLocaleString("tr-TR") : "",
+    SOZ: ranks.SOZ ? ranks.SOZ.toLocaleString("tr-TR") : "",
+    DIL: ranks.DIL ? ranks.DIL.toLocaleString("tr-TR") : "",
+  });
+
+  const [scoreTexts, setScoreTexts] = useState<Record<ScoreType, string>>({
+    SAY: scores.SAY ? strScore(scores.SAY) : "",
+    EA: scores.EA ? strScore(scores.EA) : "",
+    SOZ: scores.SOZ ? strScore(scores.SOZ) : "",
+    DIL: scores.DIL ? strScore(scores.DIL) : "",
+  });
+
+  function strScore(val: number | null): string {
+    if (!val) return "";
+    return val.toString().replace(".", ",");
+  }
+
+  // Update local texts when parent props update
+  useEffect(() => {
+    setRankTexts({
+      SAY: ranks.SAY ? ranks.SAY.toLocaleString("tr-TR") : "",
+      EA: ranks.EA ? ranks.EA.toLocaleString("tr-TR") : "",
+      SOZ: ranks.SOZ ? ranks.SOZ.toLocaleString("tr-TR") : "",
+      DIL: ranks.DIL ? ranks.DIL.toLocaleString("tr-TR") : "",
+    });
+  }, [ranks]);
+
+  const handleRankInput = (st: ScoreType, rawVal: string) => {
+    // Keep raw string in text input for seamless typing
+    setRankTexts((prev) => ({ ...prev, [st]: rawVal }));
+
+    // Strip dots, commas, spaces to get integer
+    const sanitized = rawVal.replace(/[\.\,\s]/g, "");
+    if (!sanitized) {
+      onRankChange(st, null);
+      return;
+    }
+
+    const num = parseInt(sanitized, 10);
+    if (!isNaN(num) && num > 0) {
+      onRankChange(st, num);
+    } else {
+      onRankChange(st, null);
+    }
+  };
+
+  const handleScoreInput = (st: ScoreType, rawVal: string) => {
+    setScoreTexts((prev) => ({ ...prev, [st]: rawVal }));
+
+    const sanitized = rawVal.replace(",", ".").trim();
+    if (!sanitized) {
+      onScoreChange(st, null);
+      return;
+    }
+
+    const num = parseFloat(sanitized);
+    if (!isNaN(num) && num > 0) {
+      onScoreChange(st, num);
+    } else {
+      onScoreChange(st, null);
+    }
+  };
+
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-800 pb-4">
@@ -37,7 +103,7 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
             2026 YKS Başarı Sıralamanız ve Puanlarınız
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Hesaplama yapılmasını istediğiniz puan türündeki 2026 başarı sıralamanızı yazınız.
+            Hesaplama yapılmasını istediğiniz puan türündeki 2026 başarı sıralamanızı yazınız (Örn: 275.000 veya 275000).
           </p>
         </div>
 
@@ -63,8 +129,6 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {SCORE_TYPES.map((st) => {
           const isSelected = activeScoreType === st.type;
-          const currentRank = ranks[st.type] || "";
-          const currentScore = scores[st.type] || "";
 
           return (
             <div
@@ -92,13 +156,10 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
                   2026 Başarı Sıralaması *
                 </label>
                 <input
-                  type="number"
-                  placeholder="Örn: 95000"
-                  value={currentRank}
-                  onChange={(e) => {
-                    const val = e.target.value ? parseInt(e.target.value, 10) : null;
-                    onRankChange(st.type, val);
-                  }}
+                  type="text"
+                  placeholder="Örn: 275.000 veya 95000"
+                  value={rankTexts[st.type]}
+                  onChange={(e) => handleRankInput(st.type, e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg px-3 py-2 text-sm font-semibold text-white placeholder-slate-600 outline-none transition-all"
                 />
               </div>
@@ -110,14 +171,10 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
                   Puan (Opsiyonel)
                 </label>
                 <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Örn: 412.50"
-                  value={currentScore}
-                  onChange={(e) => {
-                    const val = e.target.value ? parseFloat(e.target.value) : null;
-                    onScoreChange(st.type, val);
-                  }}
+                  type="text"
+                  placeholder="Örn: 412,50"
+                  value={scoreTexts[st.type]}
+                  onChange={(e) => handleScoreInput(st.type, e.target.value)}
                   className="w-full bg-slate-900/70 border border-slate-800 focus:border-slate-600 rounded-lg px-3 py-1.5 text-xs text-slate-300 placeholder-slate-600 outline-none transition-all"
                 />
               </div>
