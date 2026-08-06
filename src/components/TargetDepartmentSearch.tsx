@@ -85,6 +85,8 @@ export const TargetDepartmentSearch: React.FC<TargetDepartmentSearchProps> = ({
     "İngilizce Öğretmenliği",
     "Hemşirelik",
     "Adalet",
+    "Açıköğretim",
+    "Uzaktan Öğretim",
   ];
 
   const currentRank = userRanks[activeScoreType] || null;
