@@ -206,7 +206,14 @@ export default function Home() {
       if (filter.chanceCategory !== "TUMU") {
         const rankForProg = userRanks[prog.scoreType] || null;
         const chance = calculateChance(prog.rank2025, rankForProg);
-        if (chance.category !== filter.chanceCategory) return false;
+        if (filter.chanceCategory === "KESIN_GARANTI") {
+          // Include both KESIN_GARANTI (> 1.20x) AND YENI_DOLMAYAN (unfilled "---" programs)
+          if (chance.category !== "KESIN_GARANTI" && chance.category !== "YENI_DOLMAYAN") {
+            return false;
+          }
+        } else if (chance.category !== filter.chanceCategory) {
+          return false;
+        }
       }
 
       return true;
