@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ScoreType, ActiveScoreType, UserRanks, UserScores } from "../types/program";
-import { Award, Hash, Zap, CheckCircle2, RotateCcw, Layers, Monitor, GraduationCap } from "lucide-react";
+import { Award, Hash, Zap, CheckCircle2, RotateCcw, Layers, Monitor, Trash2 } from "lucide-react";
 
 interface UserRankInputProps {
   ranks: UserRanks;
@@ -33,48 +33,53 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
   onScoreTypeSelect,
   onResetToDefaults,
 }) => {
-  // Local string states initialized with YKS exam results
-  const [rankTexts, setRankTexts] = useState<Record<ScoreType, string>>({
-    SAY: ranks.SAY ? ranks.SAY.toLocaleString("tr-TR") : "722.465",
-    EA: ranks.EA ? ranks.EA.toLocaleString("tr-TR") : "613.399",
-    SOZ: ranks.SOZ ? ranks.SOZ.toLocaleString("tr-TR") : "431.601",
-    DIL: ranks.DIL ? ranks.DIL.toLocaleString("tr-TR") : "",
-    TYT: ranks.TYT ? ranks.TYT.toLocaleString("tr-TR") : "802.058",
-    AOF: ranks.AOF ? ranks.AOF.toLocaleString("tr-TR") : "802.058",
-  });
+  function fmtRank(val: number | null | undefined): string {
+    if (val === null || val === undefined) return "";
+    return val.toLocaleString("tr-TR");
+  }
 
-  const [scoreTexts, setScoreTexts] = useState<Record<ScoreType, string>>({
-    SAY: scores.SAY ? strScore(scores.SAY) : "225,18384",
-    EA: scores.EA ? strScore(scores.EA) : "266,81323",
-    SOZ: scores.SOZ ? strScore(scores.SOZ) : "275,60440",
-    DIL: scores.DIL ? strScore(scores.DIL) : "",
-    TYT: scores.TYT ? strScore(scores.TYT) : "303,70941",
-    AOF: scores.AOF ? strScore(scores.AOF) : "303,70941",
-  });
-
-  function strScore(val: number | null): string {
-    if (!val) return "";
+  function fmtScore(val: number | null | undefined): string {
+    if (val === null || val === undefined) return "";
     return val.toString().replace(".", ",");
   }
 
-  // Synchronize when ranks/scores update
+  // Local string states initialized with exact rank numbers or empty string
+  const [rankTexts, setRankTexts] = useState<Record<ScoreType, string>>({
+    SAY: fmtRank(ranks.SAY),
+    EA: fmtRank(ranks.EA),
+    SOZ: fmtRank(ranks.SOZ),
+    DIL: fmtRank(ranks.DIL),
+    TYT: fmtRank(ranks.TYT),
+    AOF: fmtRank(ranks.AOF),
+  });
+
+  const [scoreTexts, setScoreTexts] = useState<Record<ScoreType, string>>({
+    SAY: fmtScore(scores.SAY),
+    EA: fmtScore(scores.EA),
+    SOZ: fmtScore(scores.SOZ),
+    DIL: fmtScore(scores.DIL),
+    TYT: fmtScore(scores.TYT),
+    AOF: fmtScore(scores.AOF),
+  });
+
+  // Synchronize when ranks/scores props update, respecting null/empty
   useEffect(() => {
     setRankTexts({
-      SAY: ranks.SAY ? ranks.SAY.toLocaleString("tr-TR") : "722.465",
-      EA: ranks.EA ? ranks.EA.toLocaleString("tr-TR") : "613.399",
-      SOZ: ranks.SOZ ? ranks.SOZ.toLocaleString("tr-TR") : "431.601",
-      DIL: ranks.DIL ? ranks.DIL.toLocaleString("tr-TR") : "",
-      TYT: ranks.TYT ? ranks.TYT.toLocaleString("tr-TR") : "802.058",
-      AOF: ranks.AOF ? ranks.AOF.toLocaleString("tr-TR") : "802.058",
+      SAY: fmtRank(ranks.SAY),
+      EA: fmtRank(ranks.EA),
+      SOZ: fmtRank(ranks.SOZ),
+      DIL: fmtRank(ranks.DIL),
+      TYT: fmtRank(ranks.TYT),
+      AOF: fmtRank(ranks.AOF),
     });
 
     setScoreTexts({
-      SAY: scores.SAY ? strScore(scores.SAY) : "225,18384",
-      EA: scores.EA ? strScore(scores.EA) : "266,81323",
-      SOZ: scores.SOZ ? strScore(scores.SOZ) : "275,60440",
-      DIL: scores.DIL ? strScore(scores.DIL) : "",
-      TYT: scores.TYT ? strScore(scores.TYT) : "303,70941",
-      AOF: scores.AOF ? strScore(scores.AOF) : "303,70941",
+      SAY: fmtScore(scores.SAY),
+      EA: fmtScore(scores.EA),
+      SOZ: fmtScore(scores.SOZ),
+      DIL: fmtScore(scores.DIL),
+      TYT: fmtScore(scores.TYT),
+      AOF: fmtScore(scores.AOF),
     });
   }, [ranks.SAY, ranks.EA, ranks.SOZ, ranks.DIL, ranks.TYT, ranks.AOF, scores.SAY, scores.EA, scores.SOZ, scores.DIL, scores.TYT, scores.AOF]);
 
@@ -112,10 +117,17 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
     }
   };
 
+  const handleClearAOF = () => {
+    onRankChange("AOF", null);
+    onScoreChange("AOF", null);
+    setRankTexts((prev) => ({ ...prev, AOF: "" }));
+    setScoreTexts((prev) => ({ ...prev, AOF: "" }));
+  };
+
   const hasAnyRank = ranks.SAY || ranks.EA || ranks.SOZ || ranks.DIL || ranks.TYT || ranks.AOF;
 
   if (educationMode === "AOF") {
-    // AOF Mode Layout: Only 1 TYT rank input for Açıköğretim
+    // AOF Mode Layout: Single TYT rank input for Açıköğretim with clean clear capability
     return (
       <div className="bg-slate-900/90 border border-pink-500/30 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 border-b border-slate-800 pb-4">
@@ -129,12 +141,25 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
             </p>
           </div>
 
-          {hasAnyRank && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">
-              <CheckCircle2 className="w-3.5 h-3.5 text-pink-400" />
-              AÖF Modu Aktif
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {(ranks.AOF || scores.AOF) && (
+              <button
+                onClick={handleClearAOF}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-300 bg-rose-950/60 hover:bg-rose-900/60 border border-rose-700/50 rounded-xl transition-all"
+                title="AÖF Sıralamasını ve Puanını Temizle"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                AÖF Verilerini Temizle
+              </button>
+            )}
+
+            {hasAnyRank && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                <CheckCircle2 className="w-3.5 h-3.5 text-pink-400" />
+                AÖF Modu Aktif
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Single TYT Rank Card for AOF */}
@@ -153,16 +178,24 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
                 <Hash className="w-3.5 h-3.5 text-pink-400" />
                 TYT Sıralamanız *
               </label>
-              <input
-                type="text"
-                placeholder="Örn: 802.058"
-                value={rankTexts.AOF}
-                onChange={(e) => {
-                  handleRankInput("AOF", e.target.value);
-                  handleRankInput("TYT", e.target.value);
-                }}
-                className="w-full bg-slate-900 border border-slate-700 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 rounded-lg px-3 py-2 text-sm font-bold text-white placeholder-slate-600 outline-none transition-all"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Örn: 802.058"
+                  value={rankTexts.AOF}
+                  onChange={(e) => handleRankInput("AOF", e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 rounded-lg px-3 py-2 text-sm font-bold text-white placeholder-slate-600 outline-none transition-all pr-8"
+                />
+                {rankTexts.AOF && (
+                  <button
+                    onClick={() => handleRankInput("AOF", "")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-xs font-bold"
+                    title="Temizle"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
 
             <div>
@@ -170,16 +203,24 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
                 <Award className="w-3.5 h-3.5 text-pink-400" />
                 TYT Puanınız (Opsiyonel)
               </label>
-              <input
-                type="text"
-                placeholder="Örn: 303,70941"
-                value={scoreTexts.AOF}
-                onChange={(e) => {
-                  handleScoreInput("AOF", e.target.value);
-                  handleScoreInput("TYT", e.target.value);
-                }}
-                className="w-full bg-slate-900/80 border border-slate-700 focus:border-pink-500 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Örn: 303,70941"
+                  value={scoreTexts.AOF}
+                  onChange={(e) => handleScoreInput("AOF", e.target.value)}
+                  className="w-full bg-slate-900/80 border border-slate-700 focus:border-pink-500 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all pr-8"
+                />
+                {scoreTexts.AOF && (
+                  <button
+                    onClick={() => handleScoreInput("AOF", "")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-xs font-bold"
+                    title="Temizle"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -281,13 +322,27 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
                   <Hash className="w-3 h-3 text-slate-500" />
                   2026 Sıralaması *
                 </label>
-                <input
-                  type="text"
-                  placeholder="Örn: 722.465"
-                  value={rankTexts[st.type]}
-                  onChange={(e) => handleRankInput(st.type, e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-white placeholder-slate-600 outline-none transition-all"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Örn: 722.465"
+                    value={rankTexts[st.type]}
+                    onChange={(e) => handleRankInput(st.type, e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-white placeholder-slate-600 outline-none transition-all pr-6"
+                  />
+                  {rankTexts[st.type] && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRankInput(st.type, "");
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-xs font-bold"
+                      title="Temizle"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Score Input (Optional) */}
@@ -296,13 +351,27 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
                   <Award className="w-3 h-3 text-slate-500" />
                   Puan (Opsiyonel)
                 </label>
-                <input
-                  type="text"
-                  placeholder="Örn: 225,18384"
-                  value={scoreTexts[st.type]}
-                  onChange={(e) => handleScoreInput(st.type, e.target.value)}
-                  className="w-full bg-slate-900/70 border border-slate-800 focus:border-slate-600 rounded-lg px-2.5 py-1 text-[11px] text-slate-300 placeholder-slate-600 outline-none transition-all"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Örn: 225,18384"
+                    value={scoreTexts[st.type]}
+                    onChange={(e) => handleScoreInput(st.type, e.target.value)}
+                    className="w-full bg-slate-900/70 border border-slate-800 focus:border-slate-600 rounded-lg px-2.5 py-1 text-[11px] text-slate-300 placeholder-slate-600 outline-none transition-all pr-6"
+                  />
+                  {scoreTexts[st.type] && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleScoreInput(st.type, "");
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-xs font-bold"
+                      title="Temizle"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );
