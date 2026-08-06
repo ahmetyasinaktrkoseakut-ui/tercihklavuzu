@@ -13,7 +13,7 @@ import { PreferenceDrawer } from "../components/PreferenceDrawer";
 import { DataImporterModal } from "../components/DataImporterModal";
 import { SpecialConditionsModal } from "../components/SpecialConditionsModal";
 import { UserGuideModal } from "../components/UserGuideModal";
-import { Sparkles, Heart, FileCode, CheckCircle, Upload, Award } from "lucide-react";
+import { Sparkles, Heart, FileCode, CheckCircle, Upload, Award, GraduationCap, Monitor } from "lucide-react";
 
 // Official Fixed Exam Results
 const DEFAULT_RANKS: UserRanks = {
@@ -38,16 +38,19 @@ export default function Home() {
   // 1. Data State (Default static data.json or imported dataset)
   const [programs, setPrograms] = useState<UniversityProgram[]>(initialData as UniversityProgram[]);
 
-  // 2. Active Navigation Tab ("general" | "target" | "preferences")
+  // 2. Education Mode ("ORGUN" vs "AOF")
+  const [educationMode, setEducationMode] = useState<"ORGUN" | "AOF">("ORGUN");
+
+  // 3. Active Navigation Tab ("general" | "target" | "preferences")
   const [activeTab, setActiveTab] = useState<"general" | "target" | "preferences">("general");
 
-  // 3. User Ranks & Scores (Initialized with Official Exam Document Values)
+  // 4. User Ranks & Scores (Initialized with Official Exam Document Values)
   const [userRanks, setUserRanks] = useState<UserRanks>(DEFAULT_RANKS);
   const [userScores, setUserScores] = useState<UserScores>(DEFAULT_SCORES);
 
   const [activeScoreType, setActiveScoreType] = useState<ActiveScoreType>("ALL");
 
-  // 4. Filters State
+  // 5. Filters State
   const [filter, setFilter] = useState<FilterState>({
     scoreType: "ALL",
     chanceCategory: "TUMU",
@@ -57,13 +60,13 @@ export default function Home() {
     onlyNewOrEmpty: false,
   });
 
-  // 5. Favorited Preferences Basket
+  // 6. Favorited Preferences Basket
   const [preferences, setPreferences] = useState<UniversityProgram[]>([]);
 
-  // 6. Custom Print State (for downloading filtered results as PDF)
+  // 7. Custom Print State (for downloading filtered results as PDF)
   const [customPrintData, setCustomPrintData] = useState<{ list: UniversityProgram[]; title: string } | null>(null);
 
-  // 7. Modals State
+  // 8. Modals State
   const [isImporterOpen, setIsImporterOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [conditionsModal, setConditionsModal] = useState<{ isOpen: boolean; text: string; name: string }>({
@@ -171,16 +174,18 @@ export default function Home() {
     const queryLower = filter.searchQuery.trim().toLowerCase();
 
     return programs.filter((prog) => {
-      // 1. Score Type & Education Type Separation (Örgün vs Açıköğretim)
-      if (activeScoreType === "AOF") {
+      // 1. Strict Education Mode Separation (ORGUN vs AOF)
+      if (educationMode === "AOF") {
         // Show ONLY Açıköğretim programs
         if (prog.scoreType !== "AOF") return false;
-      } else if (activeScoreType === "ALL") {
-        // Show ONLY Örgün programs across all types (exclude AOF from ALL)
-        if (prog.scoreType === "AOF") return false;
       } else {
+        // Show ONLY Örgün programs (NEVER show AOF in ORGUN mode)
+        if (prog.scoreType === "AOF") return false;
+
         // Specific Örgün type match (SAY, EA, SOZ, DIL, TYT)
-        if (prog.scoreType !== activeScoreType) return false;
+        if (activeScoreType !== "ALL" && prog.scoreType !== activeScoreType) {
+          return false;
+        }
       }
 
       // 2. City Match
@@ -206,7 +211,7 @@ export default function Home() {
 
       return true;
     });
-  }, [programs, activeScoreType, filter, userRanks]);
+  }, [programs, educationMode, activeScoreType, filter, userRanks]);
 
   // Print Filtered Results List as PDF
   const handlePrintFilteredResults = (listToPrint: UniversityProgram[], titleText: string) => {
@@ -217,7 +222,7 @@ export default function Home() {
     }, 150);
   };
 
-  const currentRank = activeScoreType !== "ALL" ? (userRanks[activeScoreType] || null) : null;
+  const currentRank = educationMode === "AOF" ? (userRanks.AOF || userRanks.TYT || null) : activeScoreType !== "ALL" ? (userRanks[activeScoreType] || null) : null;
 
   // Determine current active print title and list
   let printTitle = "YKS 2026 Tercih Listem Taslağı";
@@ -233,7 +238,7 @@ export default function Home() {
     else if (filter.chanceCategory === "ZOR_SURPRIZ") filterName = "ZOR İHTİMAL (SÜRPRİZ) PROGRAMLAR (< 0.80x S)";
     else if (filter.chanceCategory === "YENI_DOLMAYAN") filterName = "YENİ AÇILAN / DOLMAYAN PROGRAMLAR";
 
-    const scoreTypeName = activeScoreType === "AOF" ? "Açıköğretim (AÖF) Programları" : activeScoreType === "ALL" ? "Tüm Örgün Programlar" : `${activeScoreType} Örgün Programları`;
+    const scoreTypeName = educationMode === "AOF" ? "Açıköğretim (AÖF) Programları" : activeScoreType === "ALL" ? "Tüm Örgün Programlar" : `${activeScoreType} Örgün Programları`;
     printTitle = `${scoreTypeName} - ${filterName} (${filteredPrograms.length} Adet)`;
     printList = filteredPrograms;
   }
@@ -252,8 +257,43 @@ export default function Home() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 print:hidden">
         
-        {/* Prominent Hero Title Banner */}
-        <div className="bg-gradient-to-r from-indigo-950 via-purple-950 to-slate-900 border border-indigo-500/30 rounded-2xl p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden">
+        {/* Prominent Mode Switcher Button Bar */}
+        <div className="flex items-center justify-center gap-3 bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800 shadow-2xl max-w-2xl mx-auto">
+          <button
+            onClick={() => {
+              setEducationMode("ORGUN");
+              setActiveScoreType("ALL");
+              setFilter((prev) => ({ ...prev, scoreType: "ALL" }));
+            }}
+            className={`flex-1 py-3 px-4 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+              educationMode === "ORGUN"
+                ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-600/40 ring-2 ring-indigo-400"
+                : "text-slate-400 hover:text-white hover:bg-slate-800"
+            }`}
+          >
+            <GraduationCap className="w-5 h-5 text-indigo-300" />
+            🎓 ÖRGÜN ÜNİVERSİTE TERCİHİ
+          </button>
+
+          <button
+            onClick={() => {
+              setEducationMode("AOF");
+              setActiveScoreType("AOF");
+              setFilter((prev) => ({ ...prev, scoreType: "AOF" }));
+            }}
+            className={`flex-1 py-3 px-4 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+              educationMode === "AOF"
+                ? "bg-gradient-to-r from-pink-600 to-rose-700 text-white shadow-lg shadow-pink-600/40 ring-2 ring-pink-400"
+                : "text-slate-400 hover:text-white hover:bg-slate-800"
+            }`}
+          >
+            <Monitor className="w-5 h-5 text-pink-300" />
+            💻 AÇIKÖĞRETİM (AÖF) TERCİHİ
+          </button>
+        </div>
+
+        {/* Hero Title Banner */}
+        <div className={`bg-gradient-to-r ${educationMode === "AOF" ? "from-pink-950 via-rose-950 to-slate-900 border-pink-500/30" : "from-indigo-950 via-purple-950 to-slate-900 border-indigo-500/30"} border rounded-2xl p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden transition-all`}>
           <div className="absolute -top-12 -left-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
           
@@ -262,11 +302,13 @@ export default function Home() {
           </span>
 
           <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-            Ahmet Yasin Aktürk Tarafından Hazırlanan <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">2026 Tercih Kılavuzu</span>
+            Ahmet Yasin Aktürk Tarafından Hazırlanan <span className={`bg-gradient-to-r ${educationMode === "AOF" ? "from-pink-400 via-rose-300 to-purple-400" : "from-indigo-400 via-purple-300 to-pink-400"} bg-clip-text text-transparent`}>2026 Tercih Kılavuzu</span>
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto mt-2">
-            Örgün ve Açıköğretim Devlet Üniversitesi programları üzerinden ayrı yapıda ihtimal hesaplama ve tercih robotu
+            {educationMode === "AOF"
+              ? "Açıköğretim ve Uzaktan Eğitim Devlet Üniversitesi programları özel tercih ve sıralama robotu"
+              : "Örgün (Yüz Yüze) Devlet Üniversitesi programları özel tercih ve sıralama robotu"}
           </p>
         </div>
 
@@ -275,6 +317,7 @@ export default function Home() {
           ranks={userRanks}
           scores={userScores}
           activeScoreType={activeScoreType}
+          educationMode={educationMode}
           onRankChange={handleRankChange}
           onScoreChange={handleScoreChange}
           onScoreTypeSelect={(st) => {
@@ -294,7 +337,7 @@ export default function Home() {
               totalMatchCount={filteredPrograms.length}
               onReset={() =>
                 setFilter({
-                  scoreType: activeScoreType,
+                  scoreType: educationMode === "AOF" ? "AOF" : "ALL",
                   chanceCategory: "TUMU",
                   selectedCity: "ALL",
                   searchQuery: "",
@@ -323,9 +366,9 @@ export default function Home() {
         {activeTab === "target" && (
           <div className="animate-fadeIn">
             <TargetDepartmentSearch
-              programs={programs}
+              programs={filteredPrograms}
               userRanks={userRanks}
-              activeScoreType={activeScoreType === "ALL" ? "SAY" : activeScoreType}
+              activeScoreType={educationMode === "AOF" ? "AOF" : activeScoreType === "ALL" ? "SAY" : activeScoreType}
               favoritedIds={favoritedIds}
               onToggleFavorite={handleToggleFavorite}
               onOpenConditionsModal={(text, name) =>
