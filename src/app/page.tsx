@@ -22,6 +22,7 @@ const DEFAULT_RANKS: UserRanks = {
   SOZ: 431601,
   DIL: null,
   TYT: 802058,
+  AOF: 802058,
 };
 
 const DEFAULT_SCORES: UserScores = {
@@ -30,6 +31,7 @@ const DEFAULT_SCORES: UserScores = {
   SOZ: 275.60440,
   DIL: null,
   TYT: 303.70941,
+  AOF: 303.70941,
 };
 
 export default function Home() {
@@ -83,7 +85,7 @@ export default function Home() {
           setUserRanks(DEFAULT_RANKS);
           localStorage.setItem("yks_user_ranks", JSON.stringify(DEFAULT_RANKS));
         } else {
-          setUserRanks(parsed);
+          setUserRanks({ ...DEFAULT_RANKS, ...parsed });
         }
       } else {
         localStorage.setItem("yks_user_ranks", JSON.stringify(DEFAULT_RANKS));
@@ -91,7 +93,7 @@ export default function Home() {
 
       const savedScores = localStorage.getItem("yks_user_scores");
       if (savedScores) {
-        setUserScores(JSON.parse(savedScores));
+        setUserScores({ ...DEFAULT_SCORES, ...JSON.parse(savedScores) });
       } else {
         localStorage.setItem("yks_user_scores", JSON.stringify(DEFAULT_SCORES));
       }
@@ -164,14 +166,21 @@ export default function Home() {
     return Array.from(citiesSet).sort((a, b) => a.localeCompare(b, "tr"));
   }, [programs]);
 
-  // High Performance Client-Side Filtering with useMemo
+  // High Performance Client-Side Filtering with strict separation of Örgün and Açıköğretim
   const filteredPrograms = useMemo(() => {
     const queryLower = filter.searchQuery.trim().toLowerCase();
 
     return programs.filter((prog) => {
-      // 1. Score Type Match (Allow ALL or specific type)
-      if (activeScoreType !== "ALL" && prog.scoreType !== activeScoreType) {
-        return false;
+      // 1. Score Type & Education Type Separation (Örgün vs Açıköğretim)
+      if (activeScoreType === "AOF") {
+        // Show ONLY Açıköğretim programs
+        if (prog.scoreType !== "AOF") return false;
+      } else if (activeScoreType === "ALL") {
+        // Show ONLY Örgün programs across all types (exclude AOF from ALL)
+        if (prog.scoreType === "AOF") return false;
+      } else {
+        // Specific Örgün type match (SAY, EA, SOZ, DIL, TYT)
+        if (prog.scoreType !== activeScoreType) return false;
       }
 
       // 2. City Match
@@ -224,7 +233,7 @@ export default function Home() {
     else if (filter.chanceCategory === "ZOR_SURPRIZ") filterName = "ZOR İHTİMAL (SÜRPRİZ) PROGRAMLAR (< 0.80x S)";
     else if (filter.chanceCategory === "YENI_DOLMAYAN") filterName = "YENİ AÇILAN / DOLMAYAN PROGRAMLAR";
 
-    const scoreTypeName = activeScoreType === "ALL" ? "Tüm Puan Türleri" : `${activeScoreType} Puan Türü`;
+    const scoreTypeName = activeScoreType === "AOF" ? "Açıköğretim (AÖF) Programları" : activeScoreType === "ALL" ? "Tüm Örgün Programlar" : `${activeScoreType} Örgün Programları`;
     printTitle = `${scoreTypeName} - ${filterName} (${filteredPrograms.length} Adet)`;
     printList = filteredPrograms;
   }
@@ -257,7 +266,7 @@ export default function Home() {
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto mt-2">
-            2.956 Temiz Devlet Üniversitesi programı üzerinden gelişmiş ihtimal hesaplama, bölüm bazlı hedef arama ve tercih listesi robotu
+            Örgün ve Açıköğretim Devlet Üniversitesi programları üzerinden ayrı yapıda ihtimal hesaplama ve tercih robotu
           </p>
         </div>
 
@@ -368,10 +377,11 @@ export default function Home() {
 
         {/* User Ranks & Scores Summary in Print */}
         <div className="mb-4 bg-gray-100 p-3 rounded text-xs border border-gray-300 flex justify-between">
-          <span><strong>SAY:</strong> 722.465 (225,18)</span>
-          <span><strong>EA:</strong> 613.399 (266,81)</span>
-          <span><strong>SÖZ:</strong> 431.601 (275,60)</span>
-          <span><strong>TYT:</strong> 802.058 (303,70)</span>
+          <span><strong>SAY:</strong> 722.465</span>
+          <span><strong>EA:</strong> 613.399</span>
+          <span><strong>SÖZ:</strong> 431.601</span>
+          <span><strong>TYT:</strong> 802.058</span>
+          <span><strong>AÖF:</strong> 802.058</span>
         </div>
 
         <table className="w-full text-left text-xs border-collapse border border-gray-300">

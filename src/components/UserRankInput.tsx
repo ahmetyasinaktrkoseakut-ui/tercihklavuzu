@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ScoreType, ActiveScoreType, UserRanks, UserScores } from "../types/program";
-import { Award, Hash, Zap, CheckCircle2, RotateCcw, Layers } from "lucide-react";
+import { Award, Hash, Zap, CheckCircle2, RotateCcw, Layers, Monitor } from "lucide-react";
 
 interface UserRankInputProps {
   ranks: UserRanks;
@@ -15,11 +15,12 @@ interface UserRankInputProps {
 }
 
 const SCORE_TYPES: { type: ScoreType; label: string; color: string; bg: string }[] = [
-  { type: "SAY", label: "Sayısal (SAY)", color: "text-cyan-400", bg: "from-cyan-500/20 to-blue-500/20" },
-  { type: "EA", label: "Eşit Ağırlık (EA)", color: "text-amber-400", bg: "from-amber-500/20 to-orange-500/20" },
-  { type: "SOZ", label: "Sözel (SÖZ)", color: "text-purple-400", bg: "from-purple-500/20 to-pink-500/20" },
-  { type: "DIL", label: "Dil (DİL)", color: "text-emerald-400", bg: "from-emerald-500/20 to-teal-500/20" },
-  { type: "TYT", label: "TYT (Ön Lisans)", color: "text-blue-400", bg: "from-blue-500/20 to-indigo-500/20" },
+  { type: "SAY", label: "Sayısal (Örgün)", color: "text-cyan-400", bg: "from-cyan-500/20 to-blue-500/20" },
+  { type: "EA", label: "Eşit Ağırlık (Örgün)", color: "text-amber-400", bg: "from-amber-500/20 to-orange-500/20" },
+  { type: "SOZ", label: "Sözel (Örgün)", color: "text-purple-400", bg: "from-purple-500/20 to-pink-500/20" },
+  { type: "DIL", label: "Dil (Örgün)", color: "text-emerald-400", bg: "from-emerald-500/20 to-teal-500/20" },
+  { type: "TYT", label: "TYT Ön Lisans (Örgün)", color: "text-blue-400", bg: "from-blue-500/20 to-indigo-500/20" },
+  { type: "AOF", label: "Açıköğretim (AÖF)", color: "text-pink-400", bg: "from-pink-500/20 to-rose-500/20" },
 ];
 
 export const UserRankInput: React.FC<UserRankInputProps> = ({
@@ -31,13 +32,14 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
   onScoreTypeSelect,
   onResetToDefaults,
 }) => {
-  // Local string states initialized with fixed YKS exam results
+  // Local string states initialized with YKS exam results
   const [rankTexts, setRankTexts] = useState<Record<ScoreType, string>>({
     SAY: ranks.SAY ? ranks.SAY.toLocaleString("tr-TR") : "722.465",
     EA: ranks.EA ? ranks.EA.toLocaleString("tr-TR") : "613.399",
     SOZ: ranks.SOZ ? ranks.SOZ.toLocaleString("tr-TR") : "431.601",
     DIL: ranks.DIL ? ranks.DIL.toLocaleString("tr-TR") : "",
     TYT: ranks.TYT ? ranks.TYT.toLocaleString("tr-TR") : "802.058",
+    AOF: ranks.AOF ? ranks.AOF.toLocaleString("tr-TR") : "802.058",
   });
 
   const [scoreTexts, setScoreTexts] = useState<Record<ScoreType, string>>({
@@ -46,6 +48,7 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
     SOZ: scores.SOZ ? strScore(scores.SOZ) : "275,60440",
     DIL: scores.DIL ? strScore(scores.DIL) : "",
     TYT: scores.TYT ? strScore(scores.TYT) : "303,70941",
+    AOF: scores.AOF ? strScore(scores.AOF) : "303,70941",
   });
 
   function strScore(val: number | null): string {
@@ -53,7 +56,7 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
     return val.toString().replace(".", ",");
   }
 
-  // Synchronize when ranks/scores update from localStorage or parent state
+  // Synchronize when ranks/scores update
   useEffect(() => {
     setRankTexts({
       SAY: ranks.SAY ? ranks.SAY.toLocaleString("tr-TR") : "722.465",
@@ -61,6 +64,7 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
       SOZ: ranks.SOZ ? ranks.SOZ.toLocaleString("tr-TR") : "431.601",
       DIL: ranks.DIL ? ranks.DIL.toLocaleString("tr-TR") : "",
       TYT: ranks.TYT ? ranks.TYT.toLocaleString("tr-TR") : "802.058",
+      AOF: ranks.AOF ? ranks.AOF.toLocaleString("tr-TR") : "802.058",
     });
 
     setScoreTexts({
@@ -69,8 +73,9 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
       SOZ: scores.SOZ ? strScore(scores.SOZ) : "275,60440",
       DIL: scores.DIL ? strScore(scores.DIL) : "",
       TYT: scores.TYT ? strScore(scores.TYT) : "303,70941",
+      AOF: scores.AOF ? strScore(scores.AOF) : "303,70941",
     });
-  }, [ranks.SAY, ranks.EA, ranks.SOZ, ranks.DIL, ranks.TYT, scores.SAY, scores.EA, scores.SOZ, scores.DIL, scores.TYT]);
+  }, [ranks.SAY, ranks.EA, ranks.SOZ, ranks.DIL, ranks.TYT, ranks.AOF, scores.SAY, scores.EA, scores.SOZ, scores.DIL, scores.TYT, scores.AOF]);
 
   const handleRankInput = (st: ScoreType, rawVal: string) => {
     setRankTexts((prev) => ({ ...prev, [st]: rawVal }));
@@ -106,7 +111,7 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
     }
   };
 
-  const hasAnyRank = ranks.SAY || ranks.EA || ranks.SOZ || ranks.DIL || ranks.TYT;
+  const hasAnyRank = ranks.SAY || ranks.EA || ranks.SOZ || ranks.DIL || ranks.TYT || ranks.AOF;
 
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
@@ -127,7 +132,7 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
           </div>
         </div>
 
-        {/* Score Type Tabs & Reset Button */}
+        {/* Score Type Tabs */}
         <div className="flex items-center gap-2 flex-wrap">
           {onResetToDefaults && (
             <button
@@ -160,19 +165,19 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
                 onClick={() => onScoreTypeSelect(st.type)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   activeScoreType === st.type
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                    ? st.type === "AOF" ? "bg-pink-600 text-white shadow-md shadow-pink-600/30" : "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                     : "text-slate-400 hover:text-white hover:bg-slate-800"
                 }`}
               >
-                {st.type}
+                {st.type === "AOF" ? "AÇIKÖĞRETİM" : st.type}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Grid of Inputs for SAY, EA, SOZ, DIL, TYT */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      {/* Grid of Inputs for SAY, EA, SOZ, DIL, TYT, AOF */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
         {SCORE_TYPES.map((st) => {
           const isSelected = activeScoreType === st.type;
 
@@ -182,7 +187,9 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
               onClick={() => onScoreTypeSelect(st.type)}
               className={`relative cursor-pointer rounded-xl p-3.5 transition-all border ${
                 isSelected
-                  ? "bg-slate-800/90 border-indigo-500 shadow-lg shadow-indigo-500/10 ring-1 ring-indigo-500/50"
+                  ? st.type === "AOF"
+                    ? "bg-slate-800/90 border-pink-500 shadow-lg shadow-pink-500/10 ring-1 ring-pink-500/50"
+                    : "bg-slate-800/90 border-indigo-500 shadow-lg shadow-indigo-500/10 ring-1 ring-indigo-500/50"
                   : "bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900/60"
               }`}
             >
@@ -191,7 +198,7 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
                   {st.label}
                 </span>
                 {isSelected && (
-                  <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                  <span className={`w-2 h-2 rounded-full ${st.type === "AOF" ? "bg-pink-500" : "bg-indigo-500"} animate-pulse`} />
                 )}
               </div>
 
@@ -199,11 +206,11 @@ export const UserRankInput: React.FC<UserRankInputProps> = ({
               <div className="mb-2.5">
                 <label className="block text-[10px] font-medium text-slate-400 mb-1 flex items-center gap-1">
                   <Hash className="w-3 h-3 text-slate-500" />
-                  2026 Başarı Sıralaması *
+                  {st.type === "AOF" ? "AÖF / TYT Sırası *" : "2026 Sıralaması *"}
                 </label>
                 <input
                   type="text"
-                  placeholder="Örn: 431.601"
+                  placeholder="Örn: 802.058"
                   value={rankTexts[st.type]}
                   onChange={(e) => handleRankInput(st.type, e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-white placeholder-slate-600 outline-none transition-all"

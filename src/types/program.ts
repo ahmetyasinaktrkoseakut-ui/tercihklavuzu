@@ -1,4 +1,4 @@
-export type ScoreType = "SAY" | "EA" | "SOZ" | "DIL" | "TYT";
+export type ScoreType = "SAY" | "EA" | "SOZ" | "DIL" | "TYT" | "AOF";
 export type ActiveScoreType = ScoreType | "ALL";
 
 export interface UniversityProgram {
@@ -27,6 +27,7 @@ export interface UserRanks {
   SOZ?: number | null;
   DIL?: number | null;
   TYT?: number | null;
+  AOF?: number | null;
 }
 
 export interface UserScores {
@@ -35,6 +36,7 @@ export interface UserScores {
   SOZ?: number | null;
   DIL?: number | null;
   TYT?: number | null;
+  AOF?: number | null;
 }
 
 export interface FilterState {
